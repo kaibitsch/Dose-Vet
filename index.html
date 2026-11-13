@@ -1,370 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-<title>Dose Vet - Calculadora de Dosagem</title>
-<meta name="description" content="Calculadora de dosagem veterinária: líquidos, injetáveis e comprimidos." />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23145C5B%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22sans-serif%22>+</text></svg>">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102a35">
+<title>Dose Vet | Central de UTI</title>
 <style>
-  :root{
-    --primary:#145C5B;
-    --primary-dark:#0D3F3E;
-    --bg-soft:#EFF7F5;
-    --amber:#C98A3E;
-    --amber-soft:#F4E3CB;
-    --danger:#C0453A;
-    --danger-soft:#FF8A7A;
-    --ink:#1F2D2C;
-    --ink-soft:#5B6D6B;
-    --border:#D8E6E3;
-    --teal-soft:#8FC6C0;
-  }
-  *{box-sizing:border-box;}
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  background:var(--bg-soft);
-  color:var(--ink);
-  -webkit-tap-highlight-color:transparent;
-  position:relative;
-  overflow-x:hidden;
-}
-.wrap{
-  max-width:440px;
-  margin:0 auto;
-  padding:28px 16px 60px;
-  position:relative;
-}
-  .logo{
-    width:36px;height:36px;border-radius:10px;background:var(--primary);
-    color:#fff;display:flex;align-items:center;justify-content:center;
-    font-weight:700;font-size:20px;flex-shrink:0;
-  }
-  h1{font-size:24px;font-weight:800;letter-spacing:-0.02em;margin:0;color:var(--primary-dark);}
-  .subtitle{margin:6px 0 22px;font-size:14px;color:var(--ink-soft);}
-
-  .toggle{
-    display:grid;grid-template-columns:1fr 1fr;gap:4px;
-    border:2px solid var(--border);border-radius:12px;padding:4px;
-    background:#fff;margin-bottom:20px;
-  }
-  .toggle button{
-    border:none;background:transparent;border-radius:8px;padding:10px 6px;
-    font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;
-    transition:background .15s,color .15s;
-  }
-  .toggle button.active{background:var(--primary);color:#fff;}
-
-  .card{
-    background:#fff;border:2px solid var(--border);border-radius:16px;
-    padding:16px;box-shadow:0 1px 2px rgba(0,0,0,0.03);
-  }
-  label{display:block;margin-bottom:14px;}
-  label:last-of-type{margin-bottom:0;}
-  .label-text{
-    display:block;font-size:11px;font-weight:700;text-transform:uppercase;
-    letter-spacing:.04em;color:var(--ink-soft);margin-bottom:6px;
-  }
-  .field{
-    display:flex;align-items:center;border:2px solid var(--border);
-    border-radius:12px;background:#fff;padding:0 12px;
-  }
-  .field input{
-    width:100%;border:none;outline:none;background:transparent;
-    padding:10px 0;font-size:17px;font-family:ui-monospace,"SF Mono",Menlo,monospace;
-    color:var(--ink);
-  }
-  .field input[type=text]{font-family:inherit;font-size:16px;}
-  .field .unit{font-size:13px;font-weight:600;color:var(--ink-soft);white-space:nowrap;padding-left:8px;}
-  .field:focus-within{border-color:var(--primary);}
-
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-
-  .actions{display:flex;gap:8px;margin-top:16px;}
-  .btn{
-    border:none;border-radius:12px;padding:11px 14px;font-size:14px;
-    font-weight:700;cursor:pointer;
-  }
-  .btn-primary{flex:1;background:var(--primary);color:#fff;}
-  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
-  .btn-secondary{background:var(--amber-soft);color:var(--primary-dark);}
-
-  .result{
-    margin-top:16px;border-radius:16px;border:2px solid var(--primary);
-    background:var(--primary-dark);padding:20px;
-  }
-  .result.exceeds{border-color:var(--danger);}
-  .result-empty{text-align:center;font-size:14px;color:var(--teal-soft);padding:32px 0;}
-  .result-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-  .result-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--teal-soft);}
-  .result-value{
-    font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:36px;font-weight:800;
-    color:#fff;margin-top:4px;
-  }
-  .result-value.exceeds{color:var(--danger-soft);}
-  .result-value .unit{font-size:17px;font-weight:700;margin-left:4px;}
-  .result-formula{margin-top:8px;font-size:12px;font-family:ui-monospace,monospace;color:var(--teal-soft);}
-  .result-warning{margin-top:8px;font-size:12px;font-weight:700;color:var(--danger-soft);}
-  .syringe-col{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
-  .syringe-col span{margin-top:4px;font-size:10px;font-weight:700;color:var(--teal-soft);}
-
-  .history{margin-top:24px;}
-  .history h2{
-    font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
-    color:var(--ink-soft);margin:0 0 8px;
-  }
-  .history ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
-  .history li{
-    display:flex;align-items:center;justify-content:space-between;
-    background:#fff;border:2px solid var(--border);border-radius:12px;
-    padding:10px 14px;
-  }
-  .history .med{font-size:14px;font-weight:700;color:var(--ink);margin:0;}
-  .history .meta{font-size:12px;color:var(--ink-soft);margin:2px 0 0;}
-  .history .val{font-family:ui-monospace,monospace;font-size:14px;font-weight:800;color:var(--primary);}
-  .history .del{background:none;border:none;color:var(--ink-soft);font-size:16px;cursor:pointer;padding:0 0 0 10px;}
-
-  footer{margin-top:32px;text-align:center;font-size:11px;color:var(--ink-soft);}
+:root{--ink:#132f3a;--muted:#647b83;--line:#dce7e8;--paper:#f3f7f6;--white:#fff;--teal:#087e78;--teal2:#d9f2ed;--blue:#e8f1ff;--amber:#9b5c0b;--amberbg:#fff2d9;--red:#a93232;--redbg:#ffebea;--shadow:0 10px 30px #1639430d}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}.shell{min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:230px;background:#102a35;color:#eaf7f4;padding:24px 15px;display:flex;flex-direction:column;z-index:2}.brand{display:flex;gap:11px;align-items:center;padding:0 8px 26px}.brandmark{width:38px;height:38px;border-radius:13px;background:#19a89c;display:grid;place-items:center;color:white;font-size:22px;font-weight:800}.brand b{font-size:15px;letter-spacing:.01em}.brand small{display:block;color:#9bb9bd;font-size:11px;margin-top:1px}.nav{display:grid;gap:6px}.nav button{border:0;background:transparent;color:#afc5c8;text-align:left;padding:11px 12px;border-radius:10px;font-weight:600;display:flex;gap:11px;align-items:center}.nav button:hover,.nav button.active{background:#20424b;color:#fff}.nav .ico{width:18px;text-align:center;font-size:16px}.sidefoot{margin-top:auto;border-top:1px solid #ffffff20;padding:14px 8px 0;color:#a6bfc2;font-size:11px}.main{margin-left:230px;padding:30px clamp(18px,4vw,56px) 60px;max-width:1600px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:25px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--teal)}h1{font-size:26px;letter-spacing:-.035em;margin:4px 0 0}.top-right{display:flex;gap:9px;align-items:center}.date{color:var(--muted);font-size:12px}.btn{border:1px solid var(--line);background:white;color:var(--ink);padding:9px 13px;border-radius:9px;font-weight:700}.btn:hover{border-color:#8fbab5}.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}.btn.danger{color:var(--red)}.btn.small{padding:6px 9px;font-size:12px}.page{display:none}.page.active{display:block}.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.stat,.card{background:var(--white);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.stat{padding:17px 18px}.stat-label{color:var(--muted);font-weight:650;font-size:12px}.stat strong{display:block;font-size:27px;letter-spacing:-.04em;margin-top:6px}.stat small{color:var(--muted)}.card{padding:19px;margin-bottom:16px}.cardhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}.card h2{font-size:15px;margin:0;letter-spacing:-.01em}.muted{color:var(--muted)}.cols{grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr)}.alertlist{display:grid;gap:9px}.alert{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:11px 12px;border-radius:10px;background:#f5f8f8;border:1px solid var(--line)}.alert.red{background:var(--redbg);border-color:#f5c7c4}.alert.amber{background:var(--amberbg);border-color:#f0daad}.pill{border-radius:99px;padding:4px 8px;font-size:10px;font-weight:800;text-transform:uppercase;white-space:nowrap;background:var(--teal2);color:var(--teal)}.pill.red{background:var(--redbg);color:var(--red)}.pill.amber{background:var(--amberbg);color:var(--amber)}.pill.gray{background:#edf1f2;color:#5b6c72}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px}th{text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:10px;border-bottom:1px solid var(--line)}td{padding:11px 10px;border-bottom:1px solid #edf1f1;vertical-align:middle}tr:last-child td{border-bottom:0}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:13px}.field{border:1px solid var(--line);border-radius:9px;background:white;padding:9px 10px;color:var(--ink);min-width:0}.field:focus{outline:2px solid #72c7be66;border-color:var(--teal)}input.field,select.field{height:39px}.search{min-width:210px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.formgrid .wide{grid-column:1/-1}label{display:grid;gap:5px;color:#526c73;font-size:11px;font-weight:750}.resultbox{background:#102f3b;color:#fff;border-radius:13px;padding:19px;margin-top:14px}.resultbox .big{font-size:35px;font-weight:800;letter-spacing:-.04em}.resultbox small{color:#b2d2d3}.resultbox .formula{color:#b2d2d3;font:12px ui-monospace,monospace;margin-top:7px}.notice{border-left:3px solid #d49430;background:#fff8e9;padding:11px 13px;border-radius:0 8px 8px 0;color:#624b28;font-size:12px;margin-top:14px}.empty{padding:22px;text-align:center;color:var(--muted)}.actions{display:flex;gap:7px}.footnote{font-size:11px;color:var(--muted);margin-top:15px}.checkline{display:flex;align-items:center;gap:8px}.checkline label{display:flex;align-items:center;gap:7px;font-size:12px}.toast{position:fixed;right:22px;bottom:22px;background:#102f3b;color:white;border-radius:10px;padding:12px 16px;box-shadow:var(--shadow);display:none;z-index:5}.modal{position:fixed;inset:0;background:#081f26a6;display:none;place-items:center;z-index:4;padding:18px}.modal.open{display:grid}.dialog{background:white;width:min(620px,100%);border-radius:16px;padding:22px;max-height:90vh;overflow:auto}.dialoghead{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.dialoghead h2{margin:0;font-size:18px}.x{border:0;background:#edf3f3;border-radius:8px;padding:6px 10px}.mobilehead{display:none}
+@media(max-width:950px){.sidebar{width:72px;padding:18px 9px}.brand{padding:0 7px 22px}.brand b,.brand small,.nav .label,.sidefoot{display:none}.nav button{justify-content:center;padding:12px}.main{margin-left:72px}.stats{grid-template-columns:repeat(2,1fr)}.cols{grid-template-columns:1fr}}
+@media(max-width:600px){.sidebar{inset:auto 0 0;width:auto;height:64px;padding:5px 8px;flex-direction:row}.brand,.sidefoot{display:none}.nav{display:flex;justify-content:space-around;width:100%;gap:2px}.nav button{display:grid;gap:1px;padding:5px 7px;font-size:9px}.nav .label{display:block}.nav .ico{font-size:17px;width:auto}.main{margin:0;padding:22px 14px 84px}.top{align-items:flex-start}.top-right{display:grid;justify-items:end}.date{display:none}h1{font-size:22px}.stats{gap:9px}.stat{padding:13px}.stat strong{font-size:22px}.card{padding:15px}.formgrid{grid-template-columns:1fr}.formgrid .wide{grid-column:auto}.search{min-width:0;flex:1}}
 </style>
 </head>
-<body>
-<div class="wrap">
-  <header>
-    <div class="logo">+</div>
-    <h1>Dose Vet</h1>
-  </header>
-  <p class="subtitle">Calculadora de dosagem para uso clínico veterinário</p>
-
-  <div class="toggle">
-    <button id="btn-liquido" class="active">Líquido / Injetável</button>
-    <button id="btn-comprimido">Comprimido</button>
-  </div>
-
-  <div class="card">
-    <label>
-      <span class="label-text">Medicamento</span>
-      <div class="field"><input id="medicamento" type="text" placeholder="Ex: Agemoxi" /></div>
-    </label>
-
-    <div class="grid2">
-      <label>
-        <span class="label-text">Peso do animal</span>
-        <div class="field">
-          <input id="peso" type="number" inputmode="decimal" placeholder="10" />
-          <span class="unit">kg</span>
-        </div>
-      </label>
-      <label>
-        <span class="label-text">Dose</span>
-        <div class="field">
-          <input id="dose" type="number" inputmode="decimal" placeholder="22" />
-          <span class="unit">mg/kg</span>
-        </div>
-      </label>
-    </div>
-
-    <label id="label-conc-liquido">
-      <span class="label-text">Concentração do medicamento</span>
-      <div class="field">
-        <input id="conc-liquido" type="number" inputmode="decimal" placeholder="17.2" />
-        <span class="unit">mg/mL</span>
-      </div>
-    </label>
-
-    <label id="label-conc-comprimido" style="display:none;">
-      <span class="label-text">Concentração por comprimido</span>
-      <div class="field">
-        <input id="conc-comprimido" type="number" inputmode="decimal" placeholder="50" />
-        <span class="unit">mg/compr.</span>
-      </div>
-    </label>
-
-    <div class="actions">
-      <button id="btn-salvar" class="btn btn-primary" disabled>Salvar no histórico</button>
-      <button id="btn-limpar" class="btn btn-secondary">Limpar</button>
-    </div>
-  </div>
-
-  <div id="result" class="result">
-    <p class="result-empty">Preencha peso, dose e concentração para calcular</p>
-  </div>
-
-  <div id="history" class="history" style="display:none;">
-    <h2>Histórico</h2>
-    <ul id="history-list"></ul>
-  </div>
-
-  <footer>Ferramenta de apoio ao cálculo. Sempre confira a dose e a bula antes de administrar.</footer>
-</div>
-
+<body><div class="shell">
+<aside class="sidebar"><div class="brand"><div class="brandmark">+</div><div><b>Dose Vet</b><small>Central de cuidados · UTI</small></div></div><nav class="nav" id="nav"><button class="active" data-page="home"><span class="ico">▦</span><span class="label">Visão geral</span></button><button data-page="calc"><span class="ico">∑</span><span class="label">Calculadora</span></button><button data-page="meds"><span class="ico">◷</span><span class="label">Medicações</span></button><button data-page="stock"><span class="ico">▤</span><span class="label">Estoque</span></button><button data-page="equipment"><span class="ico">⚙</span><span class="label">Equipamentos</span></button><button data-page="patients"><span class="ico">♡</span><span class="label">Pacientes</span></button></nav><div class="sidefoot">Dados salvos neste dispositivo<br>Faça backups regularmente</div></aside>
+<main class="main"><header class="top"><div><div class="eyebrow" id="eyebrow">Painel da unidade</div><h1 id="title">Visão geral</h1></div><div class="top-right"><span class="date" id="today"></span><button class="btn" id="backup">Backup</button><button class="btn primary" id="quickAdd">＋ Novo registro</button></div></header>
+<section class="page active" id="page-home"><div class="grid stats" id="stats"></div><div class="grid cols"><article class="card"><div class="cardhead"><h2>⚠ Atenção da equipe</h2><button class="btn small" data-goto="stock">Ver estoque</button></div><div class="alertlist" id="alerts"></div></article><article class="card"><div class="cardhead"><h2>Agenda de medicações</h2><button class="btn small" data-goto="meds">Abrir agenda</button></div><div id="upcoming"></div></article></div><article class="card"><div class="cardhead"><h2>Atividade recente</h2><span class="muted" style="font-size:12px">Registros deste dispositivo</span></div><div id="recent"></div></article></section>
+<section class="page" id="page-calc"><div class="grid cols"><article class="card"><div class="cardhead"><h2>Calculadora de quantidade</h2><span class="pill">Conferência manual</span></div><div class="formgrid"><label>Paciente<select id="cPatient" class="field"></select></label><label>Medicamento<input id="cDrug" class="field" placeholder="Nome conforme prescrição"></label><label>Peso atual<input id="cWeight" type="number" min="0" step="any" class="field" placeholder="kg"></label><label>Dose prescrita<input id="cDose" type="number" min="0" step="any" class="field" placeholder="mg/kg"></label><label>Concentração do produto<input id="cConc" type="number" min="0" step="any" class="field" placeholder="mg/mL ou mg/comprimido"></label><label>Forma<select id="cForm" class="field"><option value="ml">Líquido (mg/mL)</option><option value="tab">Comprimido (mg/unidade)</option></select></label><label class="wide">Via / observação<input id="cRoute" class="field" placeholder="Ex.: conforme prescrição"></label></div><div id="calcResult" class="resultbox"><small>Preencha dose, peso e concentração</small></div><div class="actions" style="margin-top:13px"><button class="btn primary" id="saveCalc">Registrar conferência</button><button class="btn" id="clearCalc">Limpar</button></div><div class="notice">A calculadora não sugere dose nem substitui a prescrição. Confirme paciente, peso atualizado, medicamento, concentração, via, frequência e unidade com a prescrição e com o médico-veterinário responsável antes de administrar.</div><p class="footnote">Fórmula: peso (kg) × dose prescrita (mg/kg) ÷ concentração (mg/mL ou mg/unidade). Resultado é uma conferência matemática.</p></article><article class="card"><h2>Dupla checagem</h2><p class="muted">Use este espaço como roteiro antes de preparar a medicação.</p><div id="checklist"></div><div class="notice">Não use abreviações ambíguas para frequência ou via. Registre horários e unidade por extenso sempre que possível.</div></article></div></section>
+<section class="page" id="page-meds"><article class="card"><div class="cardhead"><div><h2>Agenda e administração</h2><span class="muted" style="font-size:12px">Agende doses prescritas e registre o que foi administrado</span></div><button class="btn primary" data-modal="med">＋ Agendar medicação</button></div><div class="toolbar"><input class="field search" id="medSearch" placeholder="Buscar paciente ou medicamento"><select class="field" id="medFilter"><option value="all">Todos os status</option><option value="pendente">Pendente</option><option value="administrado">Administrado</option><option value="cancelado">Cancelado</option></select></div><div id="medTable"></div></article></section>
+<section class="page" id="page-stock"><article class="card"><div class="cardhead"><div><h2>Estoque da UTI</h2><span class="muted" style="font-size:12px">Medicamentos, descartáveis e materiais</span></div><button class="btn primary" data-modal="stock">＋ Adicionar item</button></div><div class="toolbar"><input class="field search" id="stockSearch" placeholder="Buscar item, lote ou localização"><select class="field" id="stockFilter"><option value="all">Todas as categorias</option><option>Medicamento</option><option>Descartável</option><option>Material</option><option>Nutrição</option><option>Outro</option></select></div><div id="stockTable"></div></article></section>
+<section class="page" id="page-equipment"><article class="card"><div class="cardhead"><div><h2>Equipamentos e manutenção</h2><span class="muted" style="font-size:12px">Disponibilidade, localização e próxima revisão</span></div><button class="btn primary" data-modal="equip">＋ Cadastrar equipamento</button></div><div class="toolbar"><input class="field search" id="equipSearch" placeholder="Buscar equipamento ou setor"></div><div id="equipTable"></div></article></section>
+<section class="page" id="page-patients"><article class="card"><div class="cardhead"><div><h2>Pacientes internados</h2><span class="muted" style="font-size:12px">Identificação rápida para reduzir trocas</span></div><button class="btn primary" data-modal="patient">＋ Cadastrar paciente</button></div><div id="patientTable"></div></article></section>
+<p class="footnote">Dose Vet é um organizador local de rotina. Não substitui prontuário oficial, prescrição, protocolo institucional ou julgamento profissional.</p></main></div>
+<div class="modal" id="modal"><div class="dialog"><div class="dialoghead"><h2 id="modalTitle">Novo registro</h2><button class="x" id="closeModal">Fechar</button></div><form id="form"></form></div></div><div class="toast" id="toast"></div><input type="file" id="restoreFile" accept="application/json" hidden>
 <script>
-  const SYRINGE_SIZES = [1, 3, 5, 10, 20, 60];
-  let mode = "liquido";
+(()=>{const KEY='dose-vet-uti-v2';const seed={patients:[],meds:[],stock:[],equipment:[],activity:[]};let db;try{db={...seed,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{db={...seed}};const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],today=new Date().toISOString().slice(0,10);$('#today').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const id=()=>crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random());function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2600)}function log(text){db.activity.unshift({id:id(),text,time:new Date().toISOString()});db.activity=db.activity.slice(0,30)}
+function tab(name){$$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===name));$$('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));const labels={home:['Painel da unidade','Visão geral'],calc:['Segurança na administração','Calculadora'],meds:['Rotina assistencial','Medicações'],stock:['Materiais e medicamentos','Estoque'],equipment:['Prontidão da unidade','Equipamentos'],patients:['Internação','Pacientes']};$('#eyebrow').textContent=labels[name][0];$('#title').textContent=labels[name][1]}
+$('#nav').onclick=e=>{const b=e.target.closest('[data-page]');if(b)tab(b.dataset.page)};$$('[data-goto]').forEach(b=>b.onclick=()=>tab(b.dataset.goto));function fmt(d){if(!d)return '—';return new Date(d+'T00:00:00').toLocaleDateString('pt-BR')}function pill(s){return `<span class="pill ${s}">${s}</span>`}function table(headers,rows){return `<div class="tablewrap"><table><thead><tr>${headers.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td colspan="${headers.length}" class="empty">Nenhum registro ainda</td></tr>`}</tbody></table></div>`}
+function renderHome(){const low=db.stock.filter(x=>+x.qty<=+x.min),exp=db.stock.filter(x=>x.expiry&&x.expiry<=new Date(Date.now()+30*864e5).toISOString().slice(0,10)),maint=db.equipment.filter(x=>x.service&&x.service<=new Date(Date.now()+30*864e5).toISOString().slice(0,10));$('#stats').innerHTML=[[db.patients.length,'Pacientes internados','cadastros ativos'],[db.meds.filter(x=>x.status==='pendente').length,'Doses pendentes','na agenda'],[low.length,'Itens abaixo do mínimo','estoque'],[maint.length,'Revisões próximas','equipamentos']].map(a=>`<div class="stat"><div class="stat-label">${a[1]}</div><strong>${a[0]}</strong><small>${a[2]}</small></div>`).join('');const alerts=[...low.map(x=>({tone:'red',title:`Estoque baixo: ${esc(x.name)}`,detail:`${x.qty} ${esc(x.unit)} disponível · mínimo ${x.min}`})),...exp.map(x=>({tone:'amber',title:`Validade próxima: ${esc(x.name)}`,detail:`Lote ${esc(x.lot||'não informado')} · ${fmt(x.expiry)}`})),...maint.map(x=>({tone:'amber',title:`Revisão: ${esc(x.name)}`,detail:`${esc(x.location||'Sem setor')} · ${fmt(x.service)}`}))];$('#alerts').innerHTML=alerts.length?alerts.slice(0,8).map(a=>`<div class="alert ${a.tone}"><div><b>${a.title}</b><div class="muted">${a.detail}</div></div>${pill(a.tone)}</div>`).join(''):'<div class="empty">Sem alertas de estoque ou manutenção próximos.</div>';const meds=db.meds.filter(x=>x.status==='pendente').sort((a,b)=>(a.when||'').localeCompare(b.when||'')).slice(0,5);$('#upcoming').innerHTML=meds.length?meds.map(m=>`<div class="alert"><div><b>${esc(m.drug)}</b><div class="muted">${esc(m.patient)} · ${esc(m.dose)} ${esc(m.unit||'')}</div></div><span class="pill gray">${m.when?new Date(m.when).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}):'Sem horário'}</span></div>`).join(''):'<div class="empty">Nenhuma dose pendente.</div>';$('#recent').innerHTML=db.activity.length?db.activity.slice(0,6).map(a=>`<div class="alert"><span>${esc(a.text)}</span><small class="muted">${new Date(a.time).toLocaleString('pt-BR')}</small></div>`).join(''):'<div class="empty">As ações registradas aparecerão aqui.</div>'}
+function render(){renderHome();renderMeds();renderStock();renderEquipment();renderPatients();fillPatients();}
+function fillPatients(){const s=$('#cPatient');if(!s)return;const old=s.value;s.innerHTML='<option value="">Selecionar paciente</option>'+db.patients.map(p=>`<option>${esc(p.name)}</option>`).join('');s.value=old}
+function renderMeds(){const q=($('#medSearch')?.value||'').toLowerCase(),f=$('#medFilter')?.value||'all',items=db.meds.filter(m=>(f==='all'||m.status===f)&&(`${m.drug} ${m.patient}`.toLowerCase().includes(q)));$('#medTable').innerHTML=table(['Horário','Paciente','Medicação / dose','Via','Status','Ação'],items.map(m=>`<tr><td>${m.when?new Date(m.when).toLocaleString('pt-BR'): '—'}</td><td><b>${esc(m.patient)}</b></td><td>${esc(m.drug)}<br><small class="muted">${esc(m.dose)} ${esc(m.unit||'')}</small></td><td>${esc(m.route||'—')}</td><td>${pill(m.status==='administrado'?'':'gray')}${m.status==='administrado'?'<span class="pill">administrado</span>':m.status==='cancelado'?'<span class="pill red">cancelado</span>':'<span class="pill amber">pendente</span>'}</td><td>${m.status==='pendente'?`<button class="btn small" data-admin="${m.id}">Administrado</button> <button class="btn small danger" data-cancel="${m.id}">Cancelar</button>`:'—'}</td></tr>`));$('#medTable').querySelectorAll('[data-admin]').forEach(b=>b.onclick=()=>{let m=db.meds.find(x=>x.id===b.dataset.admin);m.status='administrado';m.doneAt=new Date().toISOString();log(`Administrada: ${m.drug} · ${m.patient}`);save();toast('Administração registrada')});$('#medTable').querySelectorAll('[data-cancel]').forEach(b=>b.onclick=()=>{const m=db.meds.find(x=>x.id===b.dataset.cancel);m.status='cancelado';log(`Cancelada: ${m.drug} · ${m.patient}`);save()})}
+function renderStock(){const q=($('#stockSearch')?.value||'').toLowerCase(),f=$('#stockFilter')?.value||'all',items=db.stock.filter(x=>(f==='all'||x.cat===f)&&(`${x.name} ${x.lot} ${x.loc}`.toLowerCase().includes(q)));$('#stockTable').innerHTML=table(['Item / categoria','Quantidade','Lote','Validade','Localização','Status','Ação'],items.map(x=>{const low=+x.qty<=+x.min,expired=x.expiry&&x.expiry<today;return `<tr><td><b>${esc(x.name)}</b><br><small class="muted">${esc(x.cat)}</small></td><td>${esc(x.qty)} ${esc(x.unit)}</td><td>${esc(x.lot||'—')}</td><td>${fmt(x.expiry)}</td><td>${esc(x.loc||'—')}</td><td>${expired?'<span class="pill red">vencido</span>':low?'<span class="pill amber">repor</span>':'<span class="pill">adequado</span>'}</td><td><button class="btn small" data-move="${x.id}" data-d="-1">−</button> <button class="btn small" data-move="${x.id}" data-d="1">＋</button></td></tr>`})));$('#stockTable').querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>{let x=db.stock.find(i=>i.id===b.dataset.move);x.qty=Math.max(0,+x.qty+(+b.dataset.d));log(`${+b.dataset.d<0?'Consumo':'Entrada'} de estoque: ${x.name}`);save()})}
+function renderEquipment(){const q=($('#equipSearch')?.value||'').toLowerCase(),items=db.equipment.filter(x=>`${x.name} ${x.loc}`.toLowerCase().includes(q));$('#equipTable').innerHTML=table(['Equipamento','Patrimônio / série','Setor','Condição','Próxima revisão','Ação'],items.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${esc(x.tag||'—')}</td><td>${esc(x.loc||'—')}</td><td>${x.status==='Em manutenção'?'<span class="pill red">em manutenção</span>':x.status==='Indisponível'?'<span class="pill amber">indisponível</span>':'<span class="pill">disponível</span>'}</td><td>${fmt(x.service)}</td><td><button class="btn small" data-status="${x.id}">Alterar status</button></td></tr>`));$('#equipTable').querySelectorAll('[data-status]').forEach(b=>b.onclick=()=>{const x=db.equipment.find(i=>i.id===b.dataset.status),opts=['Disponível','Indisponível','Em manutenção'];x.status=opts[(opts.indexOf(x.status)+1)%opts.length];log(`Status de equipamento: ${x.name} → ${x.status}`);save()})}
+function renderPatients(){const rows=db.patients.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${esc(p.species||'—')}</td><td>${esc(p.weight||'—')} kg</td><td>${esc(p.bed||'—')}</td><td>${esc(p.note||'—')}</td><td><button class="btn small danger" data-rmp="${p.id}">Alta / remover</button></td></tr>`);$('#patientTable').innerHTML=table(['Paciente','Espécie','Peso atual','Leito','Observação','Ação'],rows);$('#patientTable').querySelectorAll('[data-rmp]').forEach(b=>b.onclick=()=>{const p=db.patients.find(x=>x.id===b.dataset.rmp);if(confirm(`Dar alta/remover ${p.name}? Os registros de medicação permanecem.`)){db.patients=db.patients.filter(x=>x.id!==p.id);log(`Alta/removido: ${p.name}`);save()}})}
+function openModal(kind){const forms={patient:['Novo paciente',`<div class="formgrid"><label>Nome / identificação<input required name="name" class="field"></label><label>Espécie<input name="species" class="field" placeholder="Cão, gato…"></label><label>Peso atual (kg)<input name="weight" type="number" min="0" step="any" class="field"></label><label>Leito / setor<input name="bed" class="field"></label><label class="wide">Observação<input name="note" class="field"></label></div><button class="btn primary" style="margin-top:14px">Salvar paciente</button>`],med:['Agendar medicação',`<div class="formgrid"><label>Paciente<select name="patient" required class="field">${db.patients.map(p=>`<option>${esc(p.name)}</option>`).join('')}</select></label><label>Medicamento<input name="drug" required class="field"></label><label>Dose / quantidade prescrita<input name="dose" required class="field" placeholder="Ex.: 10 mg/kg ou 2 mL"></label><label>Unidade<input name="unit" class="field" placeholder="mg, mL, comprimido"></label><label>Via prescrita<input name="route" class="field" placeholder="Por extenso"></label><label>Data e hora<input name="when" type="datetime-local" class="field"></label></div><button class="btn primary" style="margin-top:14px">Adicionar à agenda</button>`],stock:['Adicionar ao estoque',`<div class="formgrid"><label>Nome do item<input required name="name" class="field"></label><label>Categoria<select name="cat" class="field"><option>Medicamento</option><option>Descartável</option><option>Material</option><option>Nutrição</option><option>Outro</option></select></label><label>Quantidade atual<input required name="qty" type="number" min="0" step="any" class="field"></label><label>Unidade<input required name="unit" class="field" placeholder="un, caixa, frasco…"></label><label>Estoque mínimo<input name="min" type="number" min="0" step="any" value="0" class="field"></label><label>Lote<input name="lot" class="field"></label><label>Validade<input name="expiry" type="date" class="field"></label><label>Localização<input name="loc" class="field" placeholder="Armário / prateleira"></label></div><button class="btn primary" style="margin-top:14px">Salvar item</button>`],equip:['Cadastrar equipamento',`<div class="formgrid"><label>Nome<input required name="name" class="field"></label><label>Patrimônio / número de série<input name="tag" class="field"></label><label>Setor / localização<input name="loc" class="field"></label><label>Status<select name="status" class="field"><option>Disponível</option><option>Indisponível</option><option>Em manutenção</option></select></label><label>Próxima revisão<input name="service" type="date" class="field"></label></div><button class="btn primary" style="margin-top:14px">Salvar equipamento</button>`]};if(!forms[kind])return;$('#modalTitle').textContent=forms[kind][0];$('#form').innerHTML=forms[kind][1];$('#form').dataset.kind=kind;$('#modal').classList.add('open')}
+$$('[data-modal]').forEach(b=>b.onclick=()=>openModal(b.dataset.modal));$('#closeModal').onclick=()=>$('#modal').classList.remove('open');$('#modal').onclick=e=>{if(e.target.id==='modal')$('#modal').classList.remove('open')};$('#form').onsubmit=e=>{e.preventDefault();const kind=e.target.dataset.kind,d=Object.fromEntries(new FormData(e.target));const map={patient:'patients',med:'meds',stock:'stock',equip:'equipment'};if(kind==='med')d.status='pendente';if(kind==='equip'&&!d.status)d.status='Disponível';db[map[kind]].unshift({id:id(),...d});log(({patient:'Paciente cadastrado',med:'Medicação agendada',stock:'Item de estoque cadastrado',equip:'Equipamento cadastrado'})[kind]+`: ${d.name||d.drug||d.patient}`);$('#modal').classList.remove('open');save();toast('Registro salvo')};
+const calcFields=['#cWeight','#cDose','#cConc','#cForm'];function calc(){const w=+$('#cWeight').value,d=+$('#cDose').value,c=+$('#cConc').value,form=$('#cForm').value;if(w>0&&d>0&&c>0){const amount=w*d/c,unit=form==='ml'?'mL':'comprimido(s)';$('#calcResult').innerHTML=`<small>Quantidade calculada · ${esc($('#cDrug').value||'medicamento')}</small><div class="big">${amount.toFixed(3)} <span style="font-size:17px">${unit}</span></div><div class="formula">${w} kg × ${d} mg/kg ÷ ${c} mg/${form==='ml'?'mL':'unidade'} = ${amount.toFixed(3)} ${unit}</div>`}else $('#calcResult').innerHTML='<small>Preencha dose, peso e concentração</small>'}calcFields.forEach(s=>$(s).oninput=calc);$('#cDrug').oninput=calc;$('#cPatient').onchange=()=>{const p=db.patients.find(x=>x.name===$('#cPatient').value);if(p?.weight)$('#cWeight').value=p.weight;calc()};$('#clearCalc').onclick=()=>{$$('#page-calc input').forEach(x=>x.value='');calc()};$('#saveCalc').onclick=()=>{const w=+$('#cWeight').value,d=+$('#cDose').value,c=+$('#cConc').value;if(!(w>0&&d>0&&c>0))return toast('Preencha os valores para calcular');const a=w*d/c;log(`Conferência calculada: ${$('#cDrug').value||'medicação'} · ${$('#cPatient').value||'paciente não selecionado'} · ${a.toFixed(3)} ${$('#cForm').value==='ml'?'mL':'comprimido(s)'}`);save();toast('Conferência registrada no histórico')};$('#checklist').innerHTML=['Paciente correto e identificação conferida','Prescrição vigente e legível','Peso atual e unidade confirmados','Medicamento e concentração do frasco conferidos','Dose, cálculo e unidade revisados','Via e horário conferidos','Registro realizado após administração'].map((x,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><label class="checkline"><input type="checkbox" id="ck${i}"> ${x}</label></div>`).join('');
+$('#medSearch').oninput=renderMeds;$('#medFilter').onchange=renderMeds;$('#stockSearch').oninput=renderStock;$('#stockFilter').onchange=renderStock;$('#equipSearch').oninput=renderEquipment;$('#quickAdd').onclick=()=>{const kind=prompt('O que deseja registrar? Digite: paciente, medicação, estoque ou equipamento');const k=({paciente:'patient',medicação:'med',medicacao:'med',estoque:'stock',equipamento:'equip'})[(kind||'').toLowerCase()];if(k)openModal(k)};
+$('#backup').onclick=()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`dose-vet-backup-${today}.json`;a.click();URL.revokeObjectURL(a.href);toast('Backup exportado')};$('#backup').ondblclick=()=>$('#restoreFile').click();$('#restoreFile').onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());if(!data||!Array.isArray(data.patients)||!Array.isArray(data.stock))throw Error();db={...seed,...data};save();toast('Backup restaurado')}catch{toast('Arquivo de backup inválido')}e.target.value=''};document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#modal').classList.remove('open')});render();
+})();
+</script></body></html>
 
-  const el = (id) => document.getElementById(id);
-  const medicamentoEl = el("medicamento");
-  const pesoEl = el("peso");
-  const doseEl = el("dose");
-  const concLiquidoEl = el("conc-liquido");
-  const concComprimidoEl = el("conc-comprimido");
-  const resultEl = el("result");
-  const btnSalvar = el("btn-salvar");
-  const historyEl = el("history");
-  const historyListEl = el("history-list");
-
-  function pickSyringe(volumeML) {
-    return SYRINGE_SIZES.find((s) => s >= volumeML) || SYRINGE_SIZES[SYRINGE_SIZES.length - 1];
-  }
-
-  function syringeSVG(volumeML, capacityML, exceeds) {
-    const barrelH = 150, barrelTop = 30;
-    const fillPct = capacityML > 0 ? Math.max(0, Math.min(volumeML / capacityML, 1)) : 0;
-    const fillH = barrelH * fillPct;
-    const fillColor = exceeds ? "#FF8A7A" : "#C98A3E";
-    let ticks = "";
-    for (let i = 0; i <= 10; i++) {
-      const y = barrelTop + (barrelH / 10) * i;
-      const major = i % 5 === 0;
-      ticks += `<line x1="52" y1="${y}" x2="${major ? 38 : 44}" y2="${y}" stroke="#5B6D6B" stroke-width="${major ? 1.6 : 1}"/>`;
-    }
-    return `
-    <svg viewBox="0 0 160 230" width="88" height="126">
-      <rect x="66" y="0" width="28" height="14" rx="2" fill="#5B6D6B"/>
-      <rect x="74" y="12" width="12" height="16" fill="#5B6D6B"/>
-      <rect x="52" y="${barrelTop}" width="56" height="${barrelH}" rx="6" fill="white" stroke="#0D3F3E" stroke-width="2.5"/>
-      <rect x="54.5" y="${barrelTop + (barrelH - fillH) + 2}" width="51" height="${Math.max(fillH - 4, 0)}" rx="3" fill="${fillColor}" opacity="0.85"/>
-      ${ticks}
-      <rect x="76" y="${barrelTop + barrelH}" width="8" height="20" fill="#5B6D6B"/>
-      <polygon points="76,${barrelTop + barrelH + 20} 84,${barrelTop + barrelH + 20} 80,${barrelTop + barrelH + 32}" fill="#5B6D6B"/>
-    </svg>`;
-  }
-
-  function setMode(m) {
-    mode = m;
-    el("btn-liquido").classList.toggle("active", m === "liquido");
-    el("btn-comprimido").classList.toggle("active", m === "comprimido");
-    el("label-conc-liquido").style.display = m === "liquido" ? "block" : "none";
-    el("label-conc-comprimido").style.display = m === "comprimido" ? "block" : "none";
-    render();
-  }
-
-  el("btn-liquido").addEventListener("click", () => setMode("liquido"));
-  el("btn-comprimido").addEventListener("click", () => setMode("comprimido"));
-
-  function getValues() {
-    const peso = parseFloat(pesoEl.value);
-    const dose = parseFloat(doseEl.value);
-    const conc = parseFloat(mode === "liquido" ? concLiquidoEl.value : concComprimidoEl.value);
-    return { peso, dose, conc };
-  }
-
-  function calcular() {
-    const { peso, dose, conc } = getValues();
-    if (isNaN(peso) || isNaN(dose) || peso <= 0 || dose <= 0 || isNaN(conc) || conc <= 0) return null;
-    const doseTotalMg = peso * dose;
-    return doseTotalMg / conc;
-  }
-
-  function render() {
-    const { peso, dose, conc } = getValues();
-    const resultado = calcular();
-    btnSalvar.disabled = resultado === null;
-
-    if (resultado === null) {
-      resultEl.className = "result";
-      resultEl.innerHTML = `<p class="result-empty">Preencha peso, dose e concentração para calcular</p>`;
-      return;
-    }
-
-    const unidade = mode === "liquido" ? "mL" : "compr.";
-    const rotulo = mode === "liquido" ? "Volume a aspirar" : "Fração de comprimido";
-    let capacidade = null, excede = false, syringeHtml = "";
-
-    if (mode === "liquido") {
-      capacidade = pickSyringe(resultado);
-      excede = resultado > capacidade;
-      syringeHtml = `
-        <div class="syringe-col">
-          ${syringeSVG(resultado, capacidade, excede)}
-          <span>seringa ${capacidade} mL</span>
-        </div>`;
-    }
-
-    resultEl.className = "result" + (excede ? " exceeds" : "");
-    resultEl.innerHTML = `
-      <div class="result-row">
-        <div>
-          <div class="result-label">${rotulo}</div>
-          <div class="result-value${excede ? " exceeds" : ""}">${resultado.toFixed(2)}<span class="unit">${unidade}</span></div>
-          <div class="result-formula">${dose} × ${peso} ÷ ${conc} = ${resultado.toFixed(2)}</div>
-          ${excede ? `<div class="result-warning">Volume acima da seringa de ${capacidade} mL — considere dividir a dose</div>` : ""}
-        </div>
-        ${syringeHtml}
-      </div>`;
-  }
-
-  [medicamentoEl, pesoEl, doseEl, concLiquidoEl, concComprimidoEl].forEach((i) =>
-    i.addEventListener("input", render)
-  );
-
-  // History (persisted locally on the device via localStorage)
-  const STORAGE_KEY = "dose-vet-history";
-  function loadHistory() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-    catch { return []; }
-  }
-  function saveHistory(list) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  }
-  function renderHistory() {
-    const list = loadHistory();
-    historyEl.style.display = list.length ? "block" : "none";
-    historyListEl.innerHTML = list.map((h) => `
-      <li>
-        <div>
-          <p class="med">${h.medicamento}</p>
-          <p class="meta">${h.peso}kg · ${h.dose}mg/kg</p>
-        </div>
-        <div style="display:flex;align-items:center;">
-          <span class="val">${h.resultado.toFixed(2)} ${h.modo === "liquido" ? "mL" : "compr."}</span>
-          <button class="del" data-id="${h.id}" aria-label="Remover">✕</button>
-        </div>
-      </li>`).join("");
-    historyListEl.querySelectorAll(".del").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = Number(btn.dataset.id);
-        saveHistory(loadHistory().filter((h) => h.id !== id));
-        renderHistory();
-      });
-    });
-  }
-
-  btnSalvar.addEventListener("click", () => {
-    const resultado = calcular();
-    if (resultado === null) return;
-    const { peso, dose } = getValues();
-    const entry = {
-      id: Date.now(),
-      medicamento: medicamentoEl.value || "Medicamento",
-      peso, dose, modo: mode, resultado,
-    };
-    const list = [entry, ...loadHistory()].slice(0, 12);
-    saveHistory(list);
-    renderHistory();
-  });
-
-  el("btn-limpar").addEventListener("click", () => {
-    medicamentoEl.value = "";
-    pesoEl.value = "";
-    doseEl.value = "";
-    concLiquidoEl.value = "";
-    concComprimidoEl.value = "";
-    render();
-  });
-
-  render();
-  renderHistory();
-</script>
-</body>
-</html>
